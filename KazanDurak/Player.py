@@ -1,15 +1,14 @@
 from Card import Card
 from Container import Container
-from Animation import Animation
-
+from TaskManager import task_manager
 
 class Player:
-    def __init__(self, name: str, deck: Container, animation: Animation):
+    def __init__(self, name: str, deck: Container):
         self.name: str = name
         self.hand: Container = Container([])
         self.deck: Container = deck
-        self.animation: Animation = animation
 
+    @task_manager
     def take_card(self) -> Card | None:
         card = self.deck.pop()
         if card is None:

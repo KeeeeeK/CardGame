@@ -2,7 +2,7 @@ from __future__ import annotations
 from functools import reduce, wraps
 from typing import Callable
 
-from SignalManager import signal_manager
+from TaskManager import task_manager
 from Card import Card
 from Player import Player
 from Container import Container, classic_full_deck
@@ -48,7 +48,7 @@ class Game:
             for player in self.players:
                 player.take_card()
 
-    @signal_manager.pub('shuffle_deck')
+    @task_manager
     def shuffle_deck(self):
         self.deck.shuffle()
 

@@ -4,7 +4,6 @@ from enum import StrEnum
 
 from finite_state_machine import StateMachine, transition
 
-from SignalManager import SignalManager
 from Game import Game, GameZone, GameZoneError
 from Player import Player
 from Card import Card

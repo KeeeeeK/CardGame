@@ -11,8 +11,11 @@ class Card:
         self.suit: int = suit
         self.seniority: int = seniority
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return unicard(self._seniority_map[self.seniority] + self._suit_map[self.suit])
+
+    def __str__(self) -> str:
+        return self.__repr__()
 
 
 if __name__ == '__main__':

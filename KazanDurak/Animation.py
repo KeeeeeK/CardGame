@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from Card import Card
 from Container import classic_full_deck
-# from Player import Player
+
 Player = Any
 
 
@@ -85,7 +85,6 @@ ANIMATIONS_LIST = [method_name for method_name, _ in inspect.getmembers(Animatio
 ALL_DECK = classic_full_deck().cards
 
 
-
 def _unpack_message(full_message: bytes) -> str:
     if full_message == b'':
         raise BrokenPipeError('empty message means no connection')
@@ -97,9 +96,11 @@ def _pack_message(code: chr, message: str) -> bytes:
 
 
 def _func_generator(method_name):
-    def func(self, *args):
+    def func(*args):
         print(f'Server asked to play animation {method_name} with args {args[1:]}')
+
     return func
+
 
 def SimpleTextAnimationsReplacement(cls):
     abs_methods = cls.__abstractmethods__
@@ -109,11 +110,9 @@ def SimpleTextAnimationsReplacement(cls):
     return cls
 
 
-# MockLocalAnimations = SimpleTextAnimationsReplacement(Animation)
 @SimpleTextAnimationsReplacement
 class MockLocalAnimations(Animation):
-    def shuffle_deck(self):
-        print('shuffle_deck')
+    pass
 
 
 class ClientTextAnimation:
@@ -126,7 +125,6 @@ class ClientTextAnimation:
         self.animating_thread.start()
         self.sending_thread = Thread(target=self._sending_to_server, args=(socket_,), daemon=True)
         self.sending_thread.start()
-
 
     def _listen_for_server_messages(self, socket_: socket.socket):
         while True:
@@ -191,6 +189,7 @@ class ServerAnimation(Animation):
     # def _managing_client(self, socket_: socket.socket):
     #     while True:
     #         socket_.send(self._pack_message(code, message=))
+
 
 # c = ClientTextAnimation()
 # c.player_beats_card()

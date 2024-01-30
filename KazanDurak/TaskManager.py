@@ -1,30 +1,46 @@
-from typing import Callable
+from typing import Callable, Any
 from functools import wraps, reduce
+
+
+QualName = str
+Decorator = Callable[[Callable], Callable]
+
 
 
 class TaskManager:
     def __init__(self):
-        self.subs: dict[Callable, list[Callable]] = dict()
+        self.subs: dict[QualName, list[Decorator]] = dict()
 
-    def subscribe(self, trigger: Callable, subscriber: Callable) -> None:
-        if trigger not in self.subs.keys():
-            self.subs[trigger] = []
-        self.subs[trigger].append(subscriber)
+    def sub(self, trigger: Callable) -> Decorator:
+        def decorator(subscriber: Decorator) -> Decorator:
+            if trigger.__qualname__ not in self.subs.keys():
+                self.subs[trigger.__qualname__] = []
+            self.subs[trigger.__qualname__].append(subscriber)
+            return subscriber
 
-    def unsubscribe(self, trigger: Callable, subscriber: Callable) -> None:
-        self.subs[trigger].remove(subscriber)
-        if self.subs[trigger] == []:
-            self.subs.pop(trigger)
+        return decorator
+
+    def unsub(self, trigger: Callable, subscriber: Decorator) -> None:
+        self.subs[trigger.__qualname__].remove(subscriber)
+        if self.subs[trigger.__qualname__] == []:
+            self.subs.pop(trigger.__qualname__)
 
     def __call__(self, func: Callable) -> Callable:
-        decorated_func = func
-        if func in self.subs.keys():
-            decorated_func = self._massive_decoration(self.subs[func])(func)
-        return wraps(func)(decorated_func)
+        @wraps(func)
+        def dynamically_decorated_func(*args, **kwargs):
+            if func.__qualname__ not in self.subs.keys():
+                return func(*args, **kwargs)
+            decorated_func = self._massive_decoration(self.subs[func.__qualname__])(func)
+            return decorated_func(*args, **kwargs)
 
-    @classmethod
-    def _massive_decoration(cls, decorators):
+        return dynamically_decorated_func
+
+    @staticmethod
+    def _massive_decoration(decorators):
         def compose(f, g):
             return lambda x: g(f(x))
 
         return reduce(compose, decorators, lambda x: x)
+
+
+task_manager: TaskManager = TaskManager()
