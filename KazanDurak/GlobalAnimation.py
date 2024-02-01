@@ -1,8 +1,8 @@
 from functools import wraps
-from Player import Player
-from Animation import Animation
-from TaskManager import task_manager
-from Game import Game
+from .Player import Player
+from .Animation import Animation
+from .TaskManager import task_manager
+from .Game import Game
 
 class GlobalAnimation:
     def __init__(self, players: list[Player], player_animations: list[Animation]):
@@ -10,6 +10,9 @@ class GlobalAnimation:
         self.players: list[Player] = players
         self.animations: list[Animation] = player_animations
         self.player_anim_pairs: list[tuple[Player, Animation]] = list(zip(players, player_animations))
+
+        # for method_name in methods that begin with sub_:
+        #     self.method_name()
 
     def sub_to_shuffle_deck(self):
         @task_manager.sub(Game.shuffle_deck)

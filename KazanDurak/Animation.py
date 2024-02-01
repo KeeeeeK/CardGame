@@ -2,14 +2,14 @@ import inspect
 import socket
 from typing import Any
 from time import sleep
+from copy import copy
 from queue import SimpleQueue
 from threading import Thread
 from abc import ABC, abstractmethod
 
-from Card import Card
-from Container import classic_full_deck
-
-Player = Any
+from .Card import Card
+from .Container import classic_full_deck
+from .Player import Player
 
 
 class Animation(ABC):
@@ -117,6 +117,7 @@ class MockLocalAnimations(Animation):
 
 class ClientTextAnimation:
     def __init__(self, socket_: socket.socket):
+        self.__socket = socket_
         self.animation_queue: SimpleQueue[str] = SimpleQueue()
         self.sending_queue: SimpleQueue[str] = SimpleQueue()
         self.listening_thread = Thread(target=self._listen_for_server_messages, args=(socket_,), daemon=True)
@@ -156,10 +157,10 @@ class ClientTextAnimation:
         for arg in coded_args:
             if arg[0] == 'c':
                 args.append(str(ALL_DECK[int(arg[1:])]))
-            else:
-                args.append(arg)
-        print(f'Playing animation {ANIMATIONS_LIST[method_index]} with args {args}', end=' ... ')
-        sleep(0.7)
+            elif arg[0] == 'p':
+                args.append(arg)  # TODO: надо, чтоб клиент знал свой индекс
+        print(f'Playing animation {ANIMATIONS_LIST[int(method_index)]} with args {args}', end=' ... ')
+        sleep(0.2)
         print('Done!')
 
     def act_by_server_message(self, full_message):
@@ -175,15 +176,44 @@ class ClientTextAnimation:
                 raise Exception('Unknown server code error')
 
     def disconnection_behaviour(self):
-        print("Server dolbach, I won't connect with him anymore")
+        print()
+        raise Exception("Server dolbach, I won't connect with him anymore")
 
 
 class ServerAnimation(Animation):
-    def __init__(self, socket_: socket.socket):
-        ...
+    def __init__(self, socket_: socket.socket, players: list[Player], cards: list[Card]):
+        self.sending_queue: SimpleQueue[str] = SimpleQueue()
+        self.sending_thread = Thread(target=self._sending_to_client, args=(socket_,), daemon=True)
+        self.sending_thread.start()
 
-    def send_to_client(self, method, args):
-        ...
+        self.players = players
+        self.cards = copy(cards)
+
+
+    def _sending_to_client(self, socket_: socket.socket):
+        while True:
+            message_to_send = self.sending_queue.get()
+            socket_.send(_pack_message('0', message_to_send))
+
+    @classmethod
+    def replace_abstract_methods(cls):
+        abs_methods = ANIMATIONS_LIST
+        delattr(cls, '__abstractmethods__')
+        for instruction_index, method in enumerate(abs_methods):
+            def instruction_encode_and_put(self: ServerAnimation, *args):
+                args_indexes: list[str] = [str(instruction_index)]
+                for arg in args:
+                    if isinstance(arg, Player):
+                        args_indexes.append(f'p{self.players.index(arg)}')
+                    elif isinstance(arg, Card):
+                        args_indexes.append(f'c{self.cards.index(arg)}')
+                self.sending_queue.put(' '.join(args_indexes))
+
+            setattr(cls, method, instruction_encode_and_put)
+        return cls
+
+
+ServerAnimation.replace_abstract_methods()
 
     # def pack
     # def _managing_client(self, socket_: socket.socket):
@@ -195,5 +225,8 @@ class ServerAnimation(Animation):
 # c.player_beats_card()
 
 if __name__ == '__main__':
-    anim = MockLocalAnimations()
-    anim.shuffle_deck()
+    # # anim = MockLocalAnimations()
+    # # anim.shuffle_deck()
+    #
+    # print(':'.join(map(str, [1, 2, 3]))
+    pass

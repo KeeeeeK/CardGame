@@ -1,6 +1,6 @@
-from Card import Card
-from Container import Container
-from TaskManager import task_manager
+from .Card import Card
+from .Container import Container
+from .TaskManager import task_manager
 
 class Player:
     def __init__(self, name: str, deck: Container):

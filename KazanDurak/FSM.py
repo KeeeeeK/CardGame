@@ -14,7 +14,7 @@ class states:
     __slots__ = ['preparation', 'main', 'inbetween', 'final']
 
 for state in states.__slots__:
-    # а этот костыль существует, чтоб диаграмма была читаемой и названия состояний были читаемыми
+    # а этот костыль существует, чтоб диаграмма FSM была читаемой и названия состояний были читаемыми
     setattr(states, state, state)
 
 
@@ -42,20 +42,6 @@ class Rules(StateMachine):
         self.change_roles()
         pass
 
-    @transition(source=states.main, target=states.main)
-    def beat_card(self, trying_player: Player, beating_card: Card, attacking_card_index: int):
-        try:
-            self.game.game_zone.beat(beating_card, attacking_card_index)
-        except GameZoneError as e:
-            trying_player.animation.emergency_message(e)
-        else:
-            self.game.global_animation(...)
-
-
-    @transition(source=states.main, target=states.main)
-    def add_attacking_card(self):
-        pass
-
     def change_roles(self):
         pass
 
@@ -76,7 +62,6 @@ class Rules(StateMachine):
 
 if __name__ == '__main__':
     import subprocess
-    diagram = subprocess.run(["fsm_draw_state_diagram", "--class", "FSM:Rules"],
-                             capture_output=True, text=True).stdout
+    diagram = subprocess.run(["fsm_draw_state_diagram", "--class", "FSM:Rules"], capture_output=True, text=True).stdout
 
     print(diagram)

@@ -1,12 +1,15 @@
-from Game import Game
-from GlobalAnimation import GlobalAnimation
-from Player import Player
-from Container import classic_full_deck
-from Animation import MockLocalAnimations
-from TaskManager import task_manager
+from KazanDurak.Game import Game
+from KazanDurak.GlobalAnimation import GlobalAnimation
+from KazanDurak.Player import Player
+from KazanDurak.Container import classic_full_deck
+from KazanDurak.Animation import MockLocalAnimations, ServerAnimation
+from KazanDurak.TaskManager import task_manager
+import socket
+
 
 deck = classic_full_deck()
 simple_animation = MockLocalAnimations()
+# anims = [ServerAnimation()]
 players = [Player('Alice', deck), Player('Bob', deck)]
 game = Game(players, deck)
 global_anims = GlobalAnimation(players, [simple_animation, simple_animation])
