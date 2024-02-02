@@ -159,6 +159,8 @@ class ClientTextAnimation:
                 args.append(str(ALL_DECK[int(arg[1:])]))
             elif arg[0] == 'p':
                 args.append(arg)  # TODO: надо, чтоб клиент знал свой индекс
+        print(method_index, int(method_index), ANIMATIONS_LIST[int(method_index)])
+        print(ANIMATIONS_LIST)
         print(f'Playing animation {ANIMATIONS_LIST[int(method_index)]} with args {args}', end=' ... ')
         sleep(0.2)
         print('Done!')
@@ -189,44 +191,29 @@ class ServerAnimation(Animation):
         self.players = players
         self.cards = copy(cards)
 
+    @classmethod
+    def replace_abstract_methods(cls):
+        abs_methods = ANIMATIONS_LIST
+        delattr(cls, '__abstractmethods__')
+        for instruction_index, method_name in enumerate(abs_methods):
+            setattr(cls, method_name, cls._instruction_encode_and_put_generator(instruction_index))
+        return cls
+
+    @staticmethod
+    def _instruction_encode_and_put_generator(instruction_index: int):
+        def instruction_encode_and_put(self: ServerAnimation, *args):
+            args_indexes: list[str] = [str(instruction_index)]
+            for arg in args:
+                if isinstance(arg, Player):
+                    args_indexes.append(f'p{self.players.index(arg)}')
+                elif isinstance(arg, Card):
+                    args_indexes.append(f'c{self.cards.index(arg)}')
+            self.sending_queue.put(' '.join(args_indexes))
+        return instruction_encode_and_put
 
     def _sending_to_client(self, socket_: socket.socket):
         while True:
             message_to_send = self.sending_queue.get()
             socket_.send(_pack_message('0', message_to_send))
 
-    @classmethod
-    def replace_abstract_methods(cls):
-        abs_methods = ANIMATIONS_LIST
-        delattr(cls, '__abstractmethods__')
-        for instruction_index, method in enumerate(abs_methods):
-            def instruction_encode_and_put(self: ServerAnimation, *args):
-                args_indexes: list[str] = [str(instruction_index)]
-                for arg in args:
-                    if isinstance(arg, Player):
-                        args_indexes.append(f'p{self.players.index(arg)}')
-                    elif isinstance(arg, Card):
-                        args_indexes.append(f'c{self.cards.index(arg)}')
-                self.sending_queue.put(' '.join(args_indexes))
-
-            setattr(cls, method, instruction_encode_and_put)
-        return cls
-
-
 ServerAnimation.replace_abstract_methods()
-
-    # def pack
-    # def _managing_client(self, socket_: socket.socket):
-    #     while True:
-    #         socket_.send(self._pack_message(code, message=))
-
-
-# c = ClientTextAnimation()
-# c.player_beats_card()
-
-if __name__ == '__main__':
-    # # anim = MockLocalAnimations()
-    # # anim.shuffle_deck()
-    #
-    # print(':'.join(map(str, [1, 2, 3]))
-    pass

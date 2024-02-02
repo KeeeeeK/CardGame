@@ -18,7 +18,8 @@ new_clients = SimpleQueue()
 accepting_socket, client_sockets = server_activate(new_clients)
 while new_clients.qsize() < 2:
     sleep(1)
-    print(f'...zzz... There {new_clients.qsize()} clients ...zzz...')
+    print(f'...zzz... {new_clients.qsize()} clients ...zzz...')
+print('2 PLAYERS CONNECTED!')
 
 # deck_copy = classic_full_deck()
 deck = classic_full_deck()
