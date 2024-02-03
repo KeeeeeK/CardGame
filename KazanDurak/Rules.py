@@ -11,7 +11,7 @@ from Card import Card
 
 class states:
     # этот костыль существует, чтоб работало автодополнение и нельзя было ошибиться в названиях
-    __slots__ = ['preparation', 'main', 'inbetween', 'final']
+    __slots__ = ['preparation', 'no_attack_state', 'attack_and_beat', 'beaten_confirm', 'inbetween', 'final']
 
 for state in states.__slots__:
     # а этот костыль существует, чтоб диаграмма FSM была читаемой и названия состояний были читаемыми
@@ -25,28 +25,46 @@ class Rules(StateMachine):
         super().__init__()
         self.game: Game = game
 
-    @transition(source=states.preparation, target=states.main)
+    @transition(source=states.preparation, target=states.no_attack_state)
     def begin_game(self):
         pass
 
-    @transition(source=states.main, target=states.inbetween)
+    @transition(source=states.attack_and_beat, target=states.inbetween)
     def all_taken(self):
         pass
 
-    @transition(source=states.main, target=states.inbetween)
+    @transition(source=states.beaten_confirm, target=states.inbetween)
     def all_beaten(self):
         pass
 
-    @transition(source=states.inbetween, target=states.main)
+
+    @transition(source=states.inbetween, target=states.no_attack_state)
     def get_cards_and_change_roles(self):
-        self.change_roles()
         pass
 
-    def change_roles(self):
+    @transition(source=states.attack_and_beat, target=states.attack_and_beat)
+    def attack(self):
+        pass
+
+    @transition(source=states.attack_and_beat, target=states.attack_and_beat)
+    def beat(self):
+        pass
+
+    @transition(source=states.attack_and_beat, target=states.beaten_confirm)
+    def mb_all_beaten(self):
+        pass
+
+
+    @transition(source=states.beaten_confirm, target=states.attack_and_beat)
+    def more_attack(self):
         pass
 
     @transition(source=states.inbetween, target=states.final)
     def endgame(self):
+        pass
+
+    @transition(source=states.no_attack_state, target=states.attack_and_beat)
+    def first_attack(self):
         pass
 
 
@@ -62,6 +80,6 @@ class Rules(StateMachine):
 
 if __name__ == '__main__':
     import subprocess
-    diagram = subprocess.run(["fsm_draw_state_diagram", "--class", "FSM:Rules"], capture_output=True, text=True).stdout
+    diagram = subprocess.run(["fsm_draw_state_diagram", "--class", "Rules:Rules"], capture_output=True, text=True)
 
-    print(diagram)
+    print(diagram.stdout)

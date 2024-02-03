@@ -2,11 +2,10 @@ from __future__ import annotations
 from functools import reduce, wraps
 from typing import Callable
 
-from .TaskManager import task_manager
-from .Card import Card
-from .Player import Player
-from .Container import Container, classic_full_deck
-from .Animation import Animation
+from TaskManager import task_manager
+from Card import Card
+from Player import Player
+from Container import Container, classic_full_deck
 
 
 class GameZoneError(Exception):
