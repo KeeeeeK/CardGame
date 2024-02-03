@@ -7,12 +7,12 @@ from queue import SimpleQueue
 from threading import Thread
 from abc import ABC, abstractmethod
 
-from .Container import classic_full_deck
-from socket_helpers import pack_message, unpack_message, CardIndex
-from Animation import ANIMATIONS_LIST
+from KazanDurak.Container import classic_full_deck
+from KazanDurak.socket_helpers import pack_message, unpack_message, CardIndex
+from KazanDurak.Animation import ANIMATIONS_LIST
 
 
-ALL_DECK = classic_full_deck()
+ALL_DECK = classic_full_deck().cards
 
 
 class ClientTextAnimation:
@@ -52,8 +52,6 @@ class ClientTextAnimation:
                 args.append(str(ALL_DECK[int(arg[1:])]))
             elif arg[0] == 'p':
                 args.append(arg)  # TODO: надо, чтоб клиент знал свой индекс
-        print(method_index, int(method_index), ANIMATIONS_LIST[int(method_index)])
-        print(ANIMATIONS_LIST)
         print(f'Playing animation {ANIMATIONS_LIST[int(method_index)]} with args {args}', end=' ... ')
         sleep(0.5)
         print('Done!')

@@ -1,8 +1,8 @@
 from functools import wraps
-from .Player import Player
-from .Animation import Animation
-from .TaskManager import task_manager
-from .Game import Game
+from KazanDurak.Player import Player
+from KazanDurak.Animation import Animation
+from KazanDurak.TaskManager import task_manager
+from KazanDurak.Game import Game
 
 class GlobalAnimation:
     def __init__(self, players: list[Player], player_animations: list[Animation]):

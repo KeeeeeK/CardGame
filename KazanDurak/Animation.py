@@ -6,10 +6,10 @@ from queue import SimpleQueue
 from threading import Thread
 from abc import ABC, abstractmethod
 
-from socket_helpers import pack_message, unpack_message
-from .Card import Card
-from .Container import classic_full_deck
-from .Player import Player
+from KazanDurak.socket_helpers import pack_message, unpack_message
+from KazanDurak.Card import Card
+from KazanDurak.Container import classic_full_deck
+from KazanDurak.Player import Player
 
 
 class Animation(ABC):

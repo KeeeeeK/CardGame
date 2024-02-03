@@ -4,9 +4,9 @@ from enum import StrEnum
 
 from finite_state_machine import StateMachine, transition
 
-from Game import Game, GameZone, GameZoneError
-from Player import Player
-from Card import Card
+from KazanDurak.Game import Game, GameZone, GameZoneError
+from KazanDurak.Player import Player
+from KazanDurak.Card import Card
 
 
 class states:

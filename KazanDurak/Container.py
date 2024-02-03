@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Sequence
 from random import shuffle
 
-from Card import Card
+from KazanDurak.Card import Card
 
 
 def classic_full_deck() -> Container:

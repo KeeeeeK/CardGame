@@ -8,10 +8,10 @@ from threading import Thread
 from abc import ABC, abstractmethod
 
 from socket_helpers import pack_message, unpack_message, CardIndex
-from .Card import Card
-from .Container import classic_full_deck
-from .Player import Player
-from .ClientClasses import ACTION_LIST
+from KazanDurak.Card import Card
+from KazanDurak.Container import classic_full_deck
+from KazanDurak.Player import Player
+from KazanDurak.ClientClasses import ACTION_LIST
 
 
 class ServerActionManager:
