@@ -18,12 +18,20 @@ class Container:
     def __init__(self, cards: Sequence[Card]):
         self.cards: list[Card] = list(cards)
 
-    def shuffle(self):
+    def shuffle(self) -> Container:
         shuffle(self.cards)
         return self
 
-    def add(self, card: Card):
+    def add(self, card: Card) -> Container:
         self.cards.append(card)
+        return self
+
+    def extend(self, cards_to_add: list[Card]) -> Container:
+        self.cards += cards_to_add
+        return self
+
+    def remove(self, card: Card) -> Container:
+        self.cards.remove(card)
         return self
 
     def pop(self) -> Card | None:
@@ -36,3 +44,6 @@ class Container:
 
     def is_empty(self) -> bool:
         return self.cards == []
+
+    def __iter__(self) -> iter:
+        return iter(self.cards)

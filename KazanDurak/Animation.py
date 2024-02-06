@@ -61,23 +61,23 @@ class Animation(ABC):
         pass
 
     @abstractmethod
-    def player_beats_card(self):
+    def player_beats_card(self, player: Player, beating: Card, attacking: Card):
         pass
 
     @abstractmethod
-    def i_beat_card(self):
+    def i_beat_card(self, beating: Card, attacking: Card):
         pass
 
     @abstractmethod
-    def player_attacks(self):
+    def player_attacks(self, player: Player, card: Card):
         pass
 
     @abstractmethod
-    def i_attack(self):
+    def i_attack(self, card: Card):
         pass
 
     @abstractmethod
-    def emergency_message(self):
+    def emergency_message(self, message: str):
         pass
 
 
@@ -141,6 +141,7 @@ class ServerAnimation(Animation):
         while True:
             message_to_send = self.sending_queue.get()
             socket_.send(pack_message('0', message_to_send))
+            sleep(0.1)
 
 
 ServerAnimation.replace_abstract_methods()

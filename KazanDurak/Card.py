@@ -17,6 +17,9 @@ class Card:
     def __str__(self) -> str:
         return self.__repr__()
 
+    def __eq__(self, other: Card):
+        return self.suit == other.suit and self.seniority == other.seniority
+
 
 if __name__ == '__main__':
     c = Card(0, 6)

@@ -1,11 +1,11 @@
 from __future__ import annotations
 from functools import reduce, wraps
-from typing import Callable
+from typing import Callable, Literal
 
 from KazanDurak.TaskManager import task_manager
 from KazanDurak.Card import Card
 from KazanDurak.Player import Player
-from KazanDurak.Container import Container, classic_full_deck
+from KazanDurak.Container import Container
 
 
 class GameZoneError(Exception):
@@ -18,13 +18,14 @@ class Game:
 
     def __init__(self, players: list[Player], deck: Container):
         self.players: list[Player] = players
-        self.deck: Container = deck
         self.attacking_player: Player = players[0]
 
-        self._max_cards_to_beat: int = 5
-        self._last_turn_all_beaten: bool | None = None
-
         self.discard: Container = Container([])
+        self.deck: Container = deck
+
+        self.max_cards_to_beat: int = Game.hand_size
+        self.last_turn_result: Literal['taken', 'beaten'] | None = None
+
         self.game_zone: GameZone = \
             GameZone(self.attacking_player, self.defending_player, self.can_beat, self.max_cards_to_beat)
 
@@ -34,12 +35,6 @@ class Game:
         if self.attacking_player == self.players[0]:
             return self.players[1]
         return self.players[0]
-
-    @property
-    def max_cards_to_beat(self) -> int:
-        ret = self._max_cards_to_beat
-        self._max_cards_to_beat = Game.hand_size
-        return ret
 
     def preparation(self):
         self.shuffle_deck()
@@ -51,7 +46,7 @@ class Game:
     def shuffle_deck(self):
         self.deck.shuffle()
 
-    def _get_cards(self):
+    def get_cards(self):
         for player in [self.attacking_player, self.defending_player]:
             while self.deck.is_empty() is False and len(player.hand) < Game.hand_size:
                 player.take_card()
@@ -87,12 +82,24 @@ class GameZone:
         self._defending_player: Player = defending_player
         self._attacking_cards: list[Card] = []
         self._beaten_pairs: list[tuple[Card, Card]] = []  # пары вида (побившая, битая) карты
-        self._can_beat: Callable[[Card, Card], bool] = can_beat
+        self._can_beat: Callable[[Card, Card], bool] = self._can_beat_if_card_is_really_attacking(can_beat)
         self._max_cards_to_beat: int = max_cards_to_beat
+
+    def _can_beat_if_card_is_really_attacking(self, can_beat: Callable):
+        @wraps(can_beat)
+        def real_can_beat(beating: Card, attacking: Card) -> bool:
+            return can_beat(beating, attacking) and attacking in self._attacking_cards
+        return real_can_beat
 
     @property
     def all_cards(self):
         return reduce(lambda s, t: s.extend(t), self._beaten_pairs, self._attacking_cards)
+
+    def clear(self) -> list[Card]:
+        ret = self.all_cards
+        self._beaten_pairs = []
+        self._attacking_cards = []
+        return ret
 
     def _is_empty(self):
         return self.all_cards == []
@@ -109,11 +116,10 @@ class GameZone:
             return True
         return False
 
-    def beat(self, beating: Card, attacking_card_index: int):
-        attacking = self._attacking_cards[attacking_card_index]
+    def beat(self, beating: Card, attacking: Card):
         if self._can_beat(beating, attacking) is False:
             raise GameZoneError('beat rules error')
-        self._attacking_cards.pop(attacking_card_index)
+        self._attacking_cards.remove(attacking)
         self._beaten_pairs.append((beating, attacking))
 
     def add_to_attack(self, card: Card):

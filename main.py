@@ -11,8 +11,16 @@ def arg_plus_1(func):
 def print_a(a):
     print(a)
 
+class MyException(Exception):
+    pass
+
+def bad_func():
+    raise Exception('asdasd')
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_a(1)
+    match 1, 2:
+        case 1, 2:
+            print(1)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
